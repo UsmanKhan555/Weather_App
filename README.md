@@ -9,8 +9,7 @@ A responsive and feature-rich weather application built with **React** and **Vit
 
 ## 🚀 Live Demo
 
-🔗 [View Deployed App](https://your-render-link.onrender.com)
-*https://weather-app-tczn.onrender.com*
+🔗 *https://weather-app-tczn.onrender.com*
 
 ---
 
