@@ -45,11 +45,8 @@ function Main() {
     
 
     const handleSearch = () => {
-      setCity(search);  
-      if(search && !searchHistory.includes(search)){
-        const updatedHistory = [search, ...searchHistory].slice(0, 5);
-        setSearchHistory(updatedHistory);
-        localStorage.setItem("searchHistory", JSON.stringify(updatedHistory));
+      if (search) {
+        setCity(search); 
       }
     };
 
@@ -80,6 +77,30 @@ function Main() {
         });
     }, [city, unit]);
 
+    useEffect(() => {
+      if (!weather) return;
+    
+      const latestCity = weather.name;
+    
+      if (latestCity && !searchHistory.includes(latestCity)) {
+        const updatedHistory = [latestCity, ...searchHistory].slice(0, 5);
+        setSearchHistory(updatedHistory);
+        localStorage.setItem("searchHistory", JSON.stringify(updatedHistory));
+    
+        fetch("http://localhost:8000/api/logs/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            city: latestCity,
+            temperature: weather.main.temp,
+            unit: unit === "metric" ? "C" : "F",
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => console.log("✅ Logged to backend:", data))
+          .catch((err) => console.error("❌ Backend log error:", err));
+      }
+    }, [weather]);
 
     useEffect(() => {
       navigator.geolocation.getCurrentPosition(
