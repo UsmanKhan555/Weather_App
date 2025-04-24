@@ -122,5 +122,17 @@
     background-color: #f5f5f5;
     color: #000;
   }
-    
+  .logs-card {
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    margin-top: 20px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dark-mode .logs-card {
+    background-color: #1e1e1e;
+    color: white;
+  }    
     

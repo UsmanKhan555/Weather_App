@@ -8,6 +8,7 @@ function Main() {
     const [loading,setLoading] = useState(false);
     const [weather,setWeather] = useState(null);
     const [error,setError] = useState("");
+    const [weatherLogs, setWeatherLogs] = useState([]);
 
     // Geolocation state
     const [coords, setCoords] = useState(null);
@@ -143,6 +144,22 @@ function Main() {
     }, [weather]);
 
     useEffect(() => {
+      if (!token) return;
+    
+      fetch("http://localhost:8000/api/logs/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("User logs:", data);
+          setWeatherLogs(data);
+        })
+        .catch((err) => console.error("Failed to fetch logs", err));
+    }, [token]);
+
+    useEffect(() => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setCoords({
@@ -216,6 +233,7 @@ return (
     </button>
   )}
 </div>
+
     <div className="weather-container">
     <button onClick={() => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -311,6 +329,23 @@ return (
     </button>
   ))}
 </div>
+{token && (
+  <div className="logs-card">
+    <h3>Your Search Logs</h3>
+    {weatherLogs.length === 0 ? (
+      <p>No logs yet</p>
+    ) : (
+      weatherLogs.map((log, index) => (
+        <div key={index} style={{ marginBottom: "10px" }}>
+          <p>
+            📍 <strong>{log.city}</strong> – 🌡 {log.temperature}°{log.unit} <br />
+            🕒 {new Date(log.timestamp).toLocaleString()}
+          </p>
+        </div>
+      ))
+    )}
+  </div>
+)}
   </div>
   
 );
