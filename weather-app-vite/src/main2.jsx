@@ -22,6 +22,10 @@ function Main() {
 
     const [hasUsedCoords, setHasUsedCoords] = useState(false);
 
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [token, setToken] = useState(localStorage.getItem("token") || "");
+
     const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
 
     const handleInput = (e) => {
@@ -48,6 +52,41 @@ function Main() {
       if (search) {
         setCity(search); 
       }
+    };
+
+    const handleRegister = () => {
+      fetch("http://localhost:8000/api/register/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.message) alert("Registered! Now log in.");
+          else alert(data.error || "Registration failed.");
+        });
+    };
+
+    const handleLogin = () => {
+      fetch("http://localhost:8000/api/token/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.access) {
+            setToken(data.access);
+            localStorage.setItem("token", data.access);
+            alert("Login successful");
+          } else {
+            alert("Login failed");
+          }
+        });
     };
 
     useEffect(() => {
@@ -90,6 +129,7 @@ function Main() {
         fetch("http://localhost:8000/api/logs/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          Authorization: `Bearer ${token}`,
           body: JSON.stringify({
             city: latestCity,
             temperature: weather.main.temp,
@@ -146,6 +186,36 @@ return (
   
   <div className="weather-wrapper">
     {/* Weather Info Card */}
+    <div style={{ marginBottom: "20px" }}>
+  <h3>Login / Register</h3>
+  <input
+    type="text"
+    placeholder="Username"
+    value={username}
+    onChange={(e) => setUsername(e.target.value)}
+  />
+  <input
+    type="password"
+    placeholder="Password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+  />
+  <button onClick={handleLogin}>Login</button>
+  <button onClick={handleRegister}>Register</button>
+
+  {token && (
+    <button
+      style={{ marginLeft: "10px", backgroundColor: "darkred", color: "#fff" }}
+      onClick={() => {
+        setToken("");
+        localStorage.removeItem("token");
+        alert("Logged out successfully.");
+      }}
+    >
+      Logout
+    </button>
+  )}
+</div>
     <div className="weather-container">
     <button onClick={() => {
     const newTheme = theme === "light" ? "dark" : "light";
